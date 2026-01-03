@@ -1,0 +1,44 @@
+{
+  "name": "freeform",
+  "version": "0.1.0",
+  "description": "Self-hosted form backend on Cloudflare Workers. Open source FormSubmit alternative.",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:prod": "wrangler deploy --env production",
+    "db:create": "wrangler d1 create freeform-db",
+    "db:migrate": "wrangler d1 migrations apply freeform-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply freeform-db --remote",
+    "kv:create": "wrangler kv:namespace create KV",
+    "queue:create:email": "wrangler queues create freeform-email",
+    "queue:create:webhook": "wrangler queues create freeform-webhook",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "forms",
+    "formsubmit",
+    "cloudflare-workers",
+    "serverless",
+    "form-backend",
+    "open-source"
+  ],
+  "author": "Axsys Technologies",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bgross0/freeform.git"
+  },
+  "homepage": "https://github.com/bgross0/freeform#readme",
+  "dependencies": {
+    "hono": "^4.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240117.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.3.0",
+    "wrangler": "^3.25.0"
+  }
+}

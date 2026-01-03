@@ -1,0 +1,61 @@
+# Freeform - Self-hosted form backend on Cloudflare Workers
+# https://github.com/yourusername/freeform
+
+name = "freeform"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database - Stores forms, submissions, users
+[[d1_databases]]
+binding = "DB"
+database_name = "freeform-db"
+database_id = "YOUR_D1_DATABASE_ID"  # npx wrangler d1 create freeform-db
+
+# KV Namespace - Rate limiting, email verification tokens
+[[kv_namespaces]]
+binding = "KV"
+id = "YOUR_KV_NAMESPACE_ID"  # npx wrangler kv namespace create FREEFORM_KV
+
+# R2 Bucket - File uploads (optional)
+# [[r2_buckets]]
+# binding = "FILES"
+# bucket_name = "freeform-uploads"
+
+# Queues - Email delivery, webhook retry
+[[queues.producers]]
+binding = "EMAIL_QUEUE"
+queue = "freeform-email"
+
+[[queues.consumers]]
+queue = "freeform-email"
+max_batch_size = 10
+max_retries = 3
+
+[[queues.producers]]
+binding = "WEBHOOK_QUEUE"
+queue = "freeform-webhook"
+
+[[queues.consumers]]
+queue = "freeform-webhook"
+max_batch_size = 10
+max_retries = 5
+
+# Secrets (set via wrangler secret)
+# wrangler secret put BREVO_API_KEY
+# wrangler secret put RECAPTCHA_SECRET_KEY
+# wrangler secret put WEBHOOK_SECRET
+
+[vars]
+ENVIRONMENT = "development"
+FROM_EMAIL = "forms@yourdomain.com"
+FROM_NAME = "Your Forms"
+TO_EMAIL = "you@yourdomain.com"
+
+# Development
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# Production
+[env.production]
+vars = { ENVIRONMENT = "production" }

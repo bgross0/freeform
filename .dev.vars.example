@@ -1,0 +1,18 @@
+# Freeform Local Development Environment Variables
+# Copy this to .dev.vars and fill in your values
+
+# Email sender (must be verified in Brevo)
+FROM_EMAIL=forms@yourdomain.com
+FROM_NAME=Your Forms
+
+# Default recipient for /submit endpoint
+TO_EMAIL=contact@yourdomain.com
+
+# Brevo API key (get from app.brevo.com > Settings > SMTP & API > API Keys)
+BREVO_API_KEY=xkeysib-your-api-key-here
+
+# Optional: reCAPTCHA v3 secret key
+# RECAPTCHA_SECRET_KEY=your-recaptcha-secret
+
+# Optional: Webhook signing secret
+# WEBHOOK_SECRET=your-webhook-secret
