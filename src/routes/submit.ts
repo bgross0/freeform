@@ -115,10 +115,11 @@ submitRouter.post("/:target", async (c) => {
     console.warn("Invalid _next URL rejected:", formData.specialFields._next);
   }
 
-  // Check if AJAX request
+  // Check if AJAX request - only if explicitly requesting JSON
+  const acceptHeader = c.req.header("Accept") || "";
   const isAjax =
     c.req.header("X-Requested-With") === "XMLHttpRequest" ||
-    c.req.header("Accept")?.includes("application/json");
+    (acceptHeader.includes("application/json") && !acceptHeader.includes("text/html"));
 
   if (isAjax) {
     return c.json({

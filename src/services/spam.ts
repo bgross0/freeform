@@ -19,9 +19,9 @@ const HONEYPOT_FIELDS = [
   "_gotcha",
   "honeypot",
   "hp",
-  "website", // Often used as honeypot
-  "url",
   "fax",
+  "phone2",
+  "address2",
 ];
 
 // Default blacklist phrases (can be extended per-form)
