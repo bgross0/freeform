@@ -40,18 +40,17 @@ A self-hosted form backend on Cloudflare Workers. Open-source FormSubmit alterna
 git clone https://github.com/bgross0/freeform.git
 cd freeform
 npm install
-
-# Create resources
-npx wrangler d1 create freeform-db
-npx wrangler kv namespace create FREEFORM_KV
-npx wrangler queues create freeform-email
-npx wrangler queues create freeform-webhook
-
-# Update wrangler.toml with IDs, then:
-npx wrangler d1 migrations apply freeform-db --remote
-npx wrangler secret put BREVO_API_KEY
-npx wrangler deploy
+npm run setup   # Creates all resources, prompts for config
+npm run deploy
 ```
+
+That's it. The setup script handles:
+- D1 database creation
+- KV namespace creation
+- Queue creation
+- Database migrations
+- Secrets configuration
+- `wrangler.toml` generation
 
 ### 2. Add to Your Site
 
@@ -75,23 +74,20 @@ First submission triggers a verification email. Click the link once, then all su
 
 ## Configuration
 
-### Environment Variables
+The setup script (`npm run setup`) prompts for all configuration:
 
-Set in `wrangler.toml`:
+| Setting | Description |
+|---------|-------------|
+| `FROM_EMAIL` | Sender email (must be verified in Brevo) |
+| `FROM_NAME` | Sender display name |
+| `TO_EMAIL` | Default recipient for `/submit` endpoint |
+| `BREVO_API_KEY` | API key from [Brevo](https://app.brevo.com) |
 
-```toml
-[vars]
-FROM_EMAIL = "forms@yourdomain.com"  # Sender (must be verified in Brevo)
-FROM_NAME = "Your Forms"              # Sender display name
-TO_EMAIL = "you@yourdomain.com"       # Default recipient for /submit
-```
-
-### Secrets
+### Optional Secrets
 
 ```bash
-npx wrangler secret put BREVO_API_KEY      # Required
-npx wrangler secret put RECAPTCHA_SECRET_KEY  # Optional
-npx wrangler secret put WEBHOOK_SECRET     # Optional
+npx wrangler secret put RECAPTCHA_SECRET_KEY  # For reCAPTCHA v3
+npx wrangler secret put WEBHOOK_SECRET        # For webhook signatures
 ```
 
 ---
@@ -211,14 +207,18 @@ Browser → Cloudflare Worker → D1 (SQLite)
 ## Local Development
 
 ```bash
-# Copy env template
-cp .dev.vars.example .dev.vars
+# Run setup first (creates wrangler.toml)
+npm run setup
 
-# Run locally
-npm run dev
+# Copy env template for local secrets
+cp .dev.vars.example .dev.vars
+# Edit .dev.vars with your BREVO_API_KEY
 
 # Apply migrations locally
 npx wrangler d1 migrations apply freeform-db --local
+
+# Run locally
+npm run dev
 ```
 
 ---

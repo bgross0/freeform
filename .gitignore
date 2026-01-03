@@ -1,6 +1,9 @@
 # Speckit planning files
 .specify/
 
+# Wrangler config (user-specific)
+wrangler.toml
+
 # Dependencies
 node_modules/
 
