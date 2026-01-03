@@ -9,7 +9,7 @@ import { parseFormData, getSubmitterEmail } from "../utils/parse-form";
 import { resolveForm, isFormVerified } from "../services/form";
 import { createSubmission, formatSubmissionData } from "../services/submission";
 import { createVerificationToken, sendVerificationEmail } from "../services/verification";
-import { sendSubmissionEmail } from "../services/email";
+import { sendSubmissionEmail, sendAutoResponse } from "../services/email";
 import { thankYouPage, redirect, htmlResponse } from "../utils/response";
 import { validateRedirectUrl } from "../utils/validate-url";
 import { queueWebhook } from "../services/webhook";
@@ -97,7 +97,22 @@ submitRouter.post("/:target", async (c) => {
     data: formatSubmissionData(submission),
     template: formData.specialFields._template || form.settings.default_template,
     cc: formData.specialFields._cc,
+    files: formData.files,
   });
+
+  // Send autoresponse to submitter if configured
+  if (formData.specialFields._autoresponse && submitterEmail) {
+    try {
+      await sendAutoResponse(c.env, {
+        to: submitterEmail,
+        subject: "Thank you for your submission",
+        message: formData.specialFields._autoresponse,
+        formEmail: form.email,
+      });
+    } catch (error) {
+      console.error("Failed to send autoresponse:", error);
+    }
+  }
 
   // Queue webhook delivery if configured
   const webhookUrl = formData.specialFields._webhook || form.settings.webhook_url;

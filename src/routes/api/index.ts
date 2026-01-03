@@ -6,10 +6,14 @@ import { Hono } from "hono";
 import type { Env } from "../../types/env.d";
 import { formsRouter } from "./forms";
 import { submissionsRouter } from "./submissions";
+import { apikeyRouter } from "./apikey";
 
 const apiRouter = new Hono<{ Bindings: Env }>();
 
-// Mount routes
+// Mount API key routes (FormSubmit-style)
+apiRouter.route("/", apikeyRouter);
+
+// Mount form routes
 apiRouter.route("/forms", formsRouter);
 apiRouter.route("/forms", submissionsRouter);
 
@@ -20,6 +24,10 @@ apiRouter.get("/", (c) => {
     version: "1.0.0",
     documentation: "https://github.com/your-org/freeform#api",
     endpoints: {
+      apiKey: {
+        request: "GET /api/get-apikey/:email",
+        submissions: "GET /api/get-submissions/:apikey",
+      },
       forms: {
         get: "GET /api/forms/:formId",
         update: "PATCH /api/forms/:formId",

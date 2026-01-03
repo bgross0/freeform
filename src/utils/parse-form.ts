@@ -32,6 +32,7 @@ export async function parseFormData(c: Context): Promise<ParsedFormData> {
   const contentType = c.req.header("Content-Type") || "";
 
   let rawData: Record<string, unknown> = {};
+  const files: File[] = [];
 
   if (contentType.includes("application/json")) {
     rawData = await c.req.json();
@@ -41,6 +42,13 @@ export async function parseFormData(c: Context): Promise<ParsedFormData> {
   ) {
     const formData = await c.req.formData();
     for (const [key, value] of formData.entries()) {
+      // Collect files separately
+      if (value instanceof File && value.size > 0) {
+        files.push(value);
+        rawData[key] = `[File: ${value.name}]`;
+        continue;
+      }
+
       // Handle multiple values with same key
       if (rawData[key] !== undefined) {
         const existing = rawData[key];
@@ -58,14 +66,21 @@ export async function parseFormData(c: Context): Promise<ParsedFormData> {
     try {
       const formData = await c.req.formData();
       for (const [key, value] of formData.entries()) {
-        rawData[key] = value;
+        if (value instanceof File && value.size > 0) {
+          files.push(value);
+          rawData[key] = `[File: ${value.name}]`;
+        } else {
+          rawData[key] = value;
+        }
       }
     } catch {
       // Empty form data
     }
   }
 
-  return extractSpecialFields(rawData);
+  const result = extractSpecialFields(rawData);
+  result.files = files.length > 0 ? files : undefined;
+  return result;
 }
 
 /**

@@ -48,6 +48,14 @@ class BrevoProvider implements EmailProvider {
       payload.cc = message.cc.map((email) => ({ email }));
     }
 
+    // Add attachments if provided
+    if (message.attachments && message.attachments.length > 0) {
+      payload.attachment = message.attachments.map((att) => ({
+        name: att.name,
+        content: att.content,
+      }));
+    }
+
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
@@ -94,6 +102,20 @@ export async function sendEmail(env: Env, message: EmailMessage): Promise<void> 
 }
 
 /**
+ * Convert File to base64 for email attachment
+ * Max 5MB total for all attachments
+ */
+async function fileToBase64(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+/**
  * Send a form submission notification email
  */
 export async function sendSubmissionEmail(
@@ -105,10 +127,37 @@ export async function sendSubmissionEmail(
     data: Record<string, unknown>;
     template?: "basic" | "table" | "minimal";
     cc?: string;
+    files?: File[];
   }
 ): Promise<void> {
   const html = submissionEmailHtml(options.data, options.template || "basic");
   const ccEmails = parseCcEmails(options.cc);
+
+  // Process file attachments (max 5MB total)
+  let attachments: { name: string; content: string; contentType: string }[] | undefined;
+  if (options.files && options.files.length > 0) {
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+    let totalSize = 0;
+    attachments = [];
+
+    for (const file of options.files) {
+      if (totalSize + file.size > MAX_SIZE) {
+        console.warn(`Skipping file ${file.name}: would exceed 5MB limit`);
+        continue;
+      }
+      try {
+        const content = await fileToBase64(file);
+        attachments.push({
+          name: file.name,
+          content,
+          contentType: file.type || "application/octet-stream",
+        });
+        totalSize += file.size;
+      } catch (error) {
+        console.error(`Failed to process file ${file.name}:`, error);
+      }
+    }
+  }
 
   await sendEmail(env, {
     to: options.to,
@@ -118,6 +167,7 @@ export async function sendSubmissionEmail(
     subject: options.subject,
     html,
     cc: ccEmails.length > 0 ? ccEmails : undefined,
+    attachments,
   });
 }
 

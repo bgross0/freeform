@@ -68,6 +68,13 @@ export interface ParsedFormData {
   files?: File[];
 }
 
+// Email attachment
+export interface EmailAttachment {
+  name: string;
+  content: string; // base64 encoded
+  contentType: string;
+}
+
 // Email message
 export interface EmailMessage {
   to: string;
@@ -78,6 +85,7 @@ export interface EmailMessage {
   html: string;
   text?: string;
   cc?: string[];
+  attachments?: EmailAttachment[];
 }
 
 // Webhook payload
