@@ -148,14 +148,10 @@ function apiKeyEmailHtml(apiKey: string, formId: string): string {
 
     <p style="color: #666; line-height: 1.6;"><strong>Form ID:</strong> ${formId}</p>
 
-    <h2 style="margin: 30px 0 15px; color: #333; font-size: 18px;">Usage</h2>
-
-    <p style="color: #666; line-height: 1.6;">Get your submissions:</p>
-    <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 13px;">curl https://freeform.ben-8b4.workers.dev/api/get-submissions/${apiKey}</pre>
-
-    <p style="color: #666; line-height: 1.6; margin-top: 20px;">Or use the full API with Authorization header:</p>
-    <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 13px;">curl https://freeform.ben-8b4.workers.dev/api/forms/${formId}/submissions \\
-  -H "Authorization: Bearer ${apiKey}"</pre>
+    <p style="color: #666; line-height: 1.6; margin-top: 20px;">To retrieve your submissions, make a GET request to:</p>
+    <p style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 13px; word-break: break-all;">
+      /api/get-submissions/YOUR_API_KEY
+    </p>
 
     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
 
