@@ -25,6 +25,10 @@ export interface Env {
   RECAPTCHA_SECRET_KEY?: string;
   ADMIN_API_KEY?: string;
   WEBHOOK_SECRET?: string;
+
+  // Dashboard auth (set via wrangler secret)
+  DASHBOARD_USER?: string;
+  DASHBOARD_PASS?: string;
 }
 
 // API key data stored in context

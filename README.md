@@ -308,6 +308,40 @@ curl https://your-worker.workers.dev/api/forms/FORM_ID/submissions \
 
 ---
 
+## Dashboard
+
+Freeform includes a built-in dashboard for managing forms and submissions.
+
+**Access:** `https://your-worker.workers.dev/dashboard/`
+
+### Features
+
+- **Forms Overview** - See all forms with submission counts
+- **Submissions Table** - Browse, search, and filter submissions
+- **Bulk Actions** - Mark read/unread, delete multiple submissions
+- **Export to CSV** - Download submissions with current filters
+- **Form Settings** - Configure email, webhooks, and notifications
+- **Dark Mode** - System-aware theme with manual toggle
+- **Responsive** - Works on desktop and tablet
+
+### Setup
+
+Set dashboard credentials as Wrangler secrets:
+
+```bash
+# Set username
+echo "your-username" | npx wrangler secret put DASHBOARD_USER
+
+# Set password (generate a strong one)
+openssl rand -base64 24 | npx wrangler secret put DASHBOARD_PASS
+```
+
+### Login
+
+Navigate to `/dashboard/` and enter your credentials. Sessions are stored in cookies and last 7 days.
+
+---
+
 ## Invisible Emails
 
 Hide your email address from spam bots by using your form's hash:

@@ -43,10 +43,13 @@ export async function parseFormData(c: Context): Promise<ParsedFormData> {
     const formData = await c.req.formData();
     for (const [key, value] of formData.entries()) {
       // Collect files separately
-      if (value instanceof File && value.size > 0) {
-        files.push(value);
-        rawData[key] = `[File: ${value.name}]`;
-        continue;
+      if (typeof value === "object" && value !== null && "name" in value && "size" in value) {
+        const file = value as File;
+        if (file.size > 0) {
+          files.push(file);
+          rawData[key] = `[File: ${file.name}]`;
+          continue;
+        }
       }
 
       // Handle multiple values with same key
@@ -66,9 +69,12 @@ export async function parseFormData(c: Context): Promise<ParsedFormData> {
     try {
       const formData = await c.req.formData();
       for (const [key, value] of formData.entries()) {
-        if (value instanceof File && value.size > 0) {
-          files.push(value);
-          rawData[key] = `[File: ${value.name}]`;
+        if (typeof value === "object" && value !== null && "name" in value && "size" in value) {
+          const file = value as File;
+          if (file.size > 0) {
+            files.push(file);
+            rawData[key] = `[File: ${file.name}]`;
+          }
         } else {
           rawData[key] = value;
         }

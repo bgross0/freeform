@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/bgross0/freeform#readme",
   "dependencies": {
+    "@cloudflare/kv-asset-handler": "^0.4.1",
     "hono": "^4.0.0",
     "zod": "^3.22.0"
   },

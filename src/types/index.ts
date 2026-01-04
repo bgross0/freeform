@@ -132,3 +132,18 @@ export interface WebhookQueueMessage {
   payload: WebhookPayload;
   attempt: number;
 }
+
+// Dashboard session entity (stored in KV)
+export interface DashboardSession {
+  token: string;
+  userId: string; // Always "admin" for v1
+  createdAt: string;
+  expiresAt: string;
+}
+
+// Form with submission counts (for dashboard)
+export interface FormWithCounts extends Form {
+  submission_count: number;
+  unread_count: number;
+  latest_submission_at: string | null;
+}
