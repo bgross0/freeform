@@ -10,6 +10,49 @@ export interface Form {
   updated_at: string;
 }
 
+// Form builder field types
+export type FieldType =
+  | "text"
+  | "email"
+  | "number"
+  | "phone"
+  | "textarea"
+  | "select"
+  | "radio"
+  | "checkbox"
+  | "date"
+  | "file"
+  | "hidden"
+  | "section";
+
+export interface FieldOption {
+  label: string;
+  value: string;
+}
+
+export interface FieldValidation {
+  min?: number;
+  max?: number;
+  pattern?: string;
+  patternMessage?: string;
+  accept?: string; // for file inputs (mime types)
+  maxFileSize?: number; // for file inputs (bytes)
+}
+
+export interface FormFieldDefinition {
+  id: string;
+  type: FieldType;
+  name: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  helpText?: string;
+  defaultValue?: string;
+  options?: FieldOption[]; // for select/radio/checkbox
+  validation?: FieldValidation;
+  sectionContent?: string; // for section headers/instructions
+}
+
 export interface FormSettings {
   default_subject?: string;
   default_template?: "basic" | "table" | "minimal";
@@ -18,6 +61,7 @@ export interface FormSettings {
   allowed_origins?: string[];
   webhook_url?: string | null;
   cc_emails?: string[];
+  field_schema?: FormFieldDefinition[];
 }
 
 // Submission entity
