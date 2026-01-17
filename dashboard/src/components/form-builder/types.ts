@@ -1,4 +1,4 @@
-import type { FieldType } from "../../../../src/types";
+import type { FieldType } from "@/lib/api";
 import {
   Type,
   Mail,

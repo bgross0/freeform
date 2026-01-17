@@ -24,6 +24,8 @@ import {
   MailOpen,
   Trash2,
   ArrowLeft,
+  Settings,
+  Hammer,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -138,17 +140,33 @@ export function SubmissionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold">{form?.email || "Submissions"}</h1>
-          <p className="text-muted-foreground">
-            {pagination?.total || 0} submissions
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{form?.email || "Submissions"}</h1>
+            <p className="text-muted-foreground">
+              {pagination?.total || 0} submissions
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/forms/${formId}/builder`}>
+              <Hammer className="mr-2 h-4 w-4" />
+              Builder
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/forms/${formId}/settings`}>
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Link>
+          </Button>
         </div>
       </div>
 

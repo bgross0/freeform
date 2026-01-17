@@ -6,6 +6,7 @@ import { FormsListPage } from "@/pages/FormsListPage";
 import { SubmissionsPage } from "@/pages/SubmissionsPage";
 import { SubmissionDetailPage } from "@/pages/SubmissionDetailPage";
 import { FormSettingsPage } from "@/pages/FormSettingsPage";
+import { FormBuilderPage } from "@/pages/FormBuilderPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="forms/:formId" element={<SubmissionsPage />} />
         <Route path="forms/:formId/submissions/:submissionId" element={<SubmissionDetailPage />} />
         <Route path="forms/:formId/settings" element={<FormSettingsPage />} />
+        <Route path="forms/:formId/builder" element={<FormBuilderPage />} />
       </Route>
 
       <Route path="/404" element={<NotFoundPage />} />

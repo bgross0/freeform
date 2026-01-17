@@ -175,6 +175,49 @@ export interface Form {
   updated_at: string;
 }
 
+// Form builder field types
+export type FieldType =
+  | "text"
+  | "email"
+  | "number"
+  | "phone"
+  | "textarea"
+  | "select"
+  | "radio"
+  | "checkbox"
+  | "date"
+  | "file"
+  | "hidden"
+  | "section";
+
+export interface FieldOption {
+  label: string;
+  value: string;
+}
+
+export interface FieldValidation {
+  min?: number;
+  max?: number;
+  pattern?: string;
+  patternMessage?: string;
+  accept?: string;
+  maxFileSize?: number;
+}
+
+export interface FormFieldDefinition {
+  id: string;
+  type: FieldType;
+  name: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  helpText?: string;
+  defaultValue?: string;
+  options?: FieldOption[];
+  validation?: FieldValidation;
+  sectionContent?: string;
+}
+
 export interface FormSettings {
   default_subject?: string;
   default_template?: "basic" | "table" | "minimal";
@@ -183,6 +226,7 @@ export interface FormSettings {
   allowed_origins?: string[];
   webhook_url?: string | null;
   cc_emails?: string[];
+  field_schema?: FormFieldDefinition[];
 }
 
 export interface FormWithCounts extends Form {

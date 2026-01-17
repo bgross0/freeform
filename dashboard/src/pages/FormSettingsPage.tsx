@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, ArrowLeft, Save } from "lucide-react";
+import { Loader2, ArrowLeft, Save, Hammer } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 
@@ -117,6 +117,27 @@ export function FormSettingsPage() {
                 Additional email addresses to CC on all submissions (comma-separated)
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Form Builder</CardTitle>
+            <CardDescription>
+              Design your form fields and generate embed code
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Use the visual form builder to create fields, configure validation,
+              and generate HTML code to embed on your website.
+            </p>
+            <Button variant="outline" asChild>
+              <Link to={`/forms/${formId}/builder`}>
+                <Hammer className="mr-2 h-4 w-4" />
+                Open Form Builder
+              </Link>
+            </Button>
           </CardContent>
         </Card>
 
