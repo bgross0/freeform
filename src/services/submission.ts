@@ -35,7 +35,8 @@ export async function createSubmission(
       ...data.fields,
       _meta: {
         submitted_at: new Date().toISOString(),
-        referer: null, // Could be added from headers
+        referer: data.tracking?.referrer ?? null,
+        tracking: data.tracking ?? null,
       },
     },
     ip_address: meta.ipAddress,

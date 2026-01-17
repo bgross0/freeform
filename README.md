@@ -57,6 +57,7 @@ First submission triggers a verification email. Click the link once, then all su
 | **File Uploads** | Attach files up to 5MB total |
 | **Auto-response** | Send confirmation emails to submitters |
 | **Email Templates** | Choose from basic, table, or minimal styles |
+| **UTM Tracking** | Capture UTM params, GCLID, FBCLID, and more |
 | **Rate Limiting** | Per-IP throttling to prevent abuse |
 | **REST API** | Programmatic access to submissions |
 | **AJAX Support** | JSON responses for SPAs |
@@ -141,6 +142,69 @@ POST submission data to an external URL in real-time.
 
 ---
 
+## Marketing Attribution / UTM Tracking
+
+Capture UTM parameters and ad platform click IDs for lead attribution. Add hidden fields populated via JavaScript:
+
+### Supported Parameters
+
+| Category | Parameters |
+|----------|-----------|
+| **UTM** | `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content` |
+| **Google Ads** | `gclid`, `gbraid`, `wbraid`, `dclid` |
+| **Meta/Facebook** | `fbclid` |
+| **Microsoft Ads** | `msclkid` |
+| **TikTok** | `ttclid` |
+| **LinkedIn** | `li_fat_id` |
+| **Twitter/X** | `twclid` |
+| **Other** | `landing_page`, `referrer` (auto-captured from headers) |
+
+### Example Implementation
+
+```html
+<form action="https://your-worker.workers.dev/submit" method="POST">
+  <!-- Tracking fields (hidden) -->
+  <input type="hidden" name="utm_source" id="utm_source">
+  <input type="hidden" name="utm_medium" id="utm_medium">
+  <input type="hidden" name="utm_campaign" id="utm_campaign">
+  <input type="hidden" name="utm_term" id="utm_term">
+  <input type="hidden" name="utm_content" id="utm_content">
+  <input type="hidden" name="gclid" id="gclid">
+  <input type="hidden" name="fbclid" id="fbclid">
+  <input type="hidden" name="landing_page" id="landing_page">
+
+  <!-- Regular form fields -->
+  <input type="text" name="name" required>
+  <input type="email" name="email" required>
+  <button type="submit">Send</button>
+</form>
+
+<script>
+  // Populate tracking fields from URL parameters
+  const params = new URLSearchParams(window.location.search);
+  const trackingFields = [
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+    'gclid', 'gbraid', 'wbraid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id', 'twclid'
+  ];
+
+  trackingFields.forEach(field => {
+    const el = document.getElementById(field);
+    const value = params.get(field);
+    if (el && value) el.value = value;
+  });
+
+  // Capture landing page URL
+  const landingEl = document.getElementById('landing_page');
+  if (landingEl) landingEl.value = window.location.href;
+</script>
+```
+
+### Data Storage
+
+Tracking data is stored in `_meta.tracking` within the submission and included in webhook payloads under `meta.tracking`.
+
+---
+
 ## File Uploads
 
 Upload files with your form submissions. Files are attached to the notification email.
@@ -202,7 +266,15 @@ Receive real-time notifications when forms are submitted.
     "form_id": "abc-123",
     "submission_id": "xyz-789",
     "submitted_at": "2024-01-15T10:30:00Z",
-    "ip_address": "192.168.1.1"
+    "ip_address": "192.168.1.1",
+    "tracking": {
+      "utm_source": "google",
+      "utm_medium": "cpc",
+      "utm_campaign": "spring_sale",
+      "gclid": "abc123xyz",
+      "landing_page": "https://yoursite.com/landing?utm_source=google",
+      "referrer": "https://www.google.com/"
+    }
   }
 }
 ```

@@ -61,10 +61,40 @@ export interface SpecialFields {
   _gotcha?: string; // Common honeypot field name
 }
 
+// Marketing/attribution tracking parameters
+export interface TrackingParams {
+  // UTM parameters
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
+  // Google Ads
+  gclid?: string;
+  gbraid?: string; // Google app attribution (iOS)
+  wbraid?: string; // Google web attribution (iOS)
+  // Facebook/Meta
+  fbclid?: string;
+  // Microsoft Ads
+  msclkid?: string;
+  // TikTok
+  ttclid?: string;
+  // LinkedIn
+  li_fat_id?: string;
+  // Twitter/X
+  twclid?: string;
+  // Generic click ID
+  dclid?: string; // DoubleClick
+  // Landing page info
+  landing_page?: string;
+  referrer?: string;
+}
+
 // Parsed form data
 export interface ParsedFormData {
   fields: Record<string, unknown>;
   specialFields: SpecialFields;
+  tracking?: TrackingParams;
   files?: File[];
 }
 
@@ -96,6 +126,7 @@ export interface WebhookPayload {
     submission_id: string;
     submitted_at: string;
     ip_address: string | null;
+    tracking?: TrackingParams | null;
   };
 }
 

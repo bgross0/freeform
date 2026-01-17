@@ -35,6 +35,10 @@ export async function queueWebhookDelivery(
 
   const created = await dbCreateWebhookDelivery(env.DB, delivery);
 
+  // Extract tracking from submission metadata
+  const submissionMeta = submission.data._meta as { tracking?: Record<string, string> | null } | undefined;
+  const tracking = submissionMeta?.tracking ?? null;
+
   // Build payload
   const payload: WebhookPayload = {
     form_data: submission.data,
@@ -43,6 +47,7 @@ export async function queueWebhookDelivery(
       submission_id: submission.id,
       submitted_at: submission.created_at,
       ip_address: submission.ip_address,
+      tracking,
     },
   };
 

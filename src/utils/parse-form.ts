@@ -4,7 +4,7 @@
  */
 
 import type { Context } from "hono";
-import type { ParsedFormData, SpecialFields } from "../types";
+import type { ParsedFormData, SpecialFields, TrackingParams } from "../types";
 
 /**
  * Special field names (underscore-prefixed)
@@ -26,10 +26,39 @@ const SPECIAL_FIELDS = [
 ];
 
 /**
+ * Tracking parameter names for marketing attribution
+ */
+const TRACKING_PARAMS = [
+  // UTM parameters
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  // Google Ads
+  "gclid",
+  "gbraid",
+  "wbraid",
+  // Facebook/Meta
+  "fbclid",
+  // Microsoft Ads
+  "msclkid",
+  // TikTok
+  "ttclid",
+  // LinkedIn
+  "li_fat_id",
+  // Twitter/X
+  "twclid",
+  // DoubleClick
+  "dclid",
+] as const;
+
+/**
  * Parse form data from request based on content type
  */
 export async function parseFormData(c: Context): Promise<ParsedFormData> {
   const contentType = c.req.header("Content-Type") || "";
+  const referrer = c.req.header("Referer") || c.req.header("Referrer") || null;
 
   let rawData: Record<string, unknown> = {};
   const files: File[] = [];
@@ -84,22 +113,47 @@ export async function parseFormData(c: Context): Promise<ParsedFormData> {
     }
   }
 
-  const result = extractSpecialFields(rawData);
+  const result = extractFieldsAndTracking(rawData, referrer);
   result.files = files.length > 0 ? files : undefined;
   return result;
 }
 
 /**
- * Extract special fields from raw form data
+ * Extract special fields and tracking parameters from raw form data
  */
-function extractSpecialFields(
-  rawData: Record<string, unknown>
+function extractFieldsAndTracking(
+  rawData: Record<string, unknown>,
+  referrer: string | null
 ): ParsedFormData {
   const fields: Record<string, unknown> = {};
   const specialFields: SpecialFields = {};
+  const tracking: TrackingParams = {};
+
+  // Add referrer to tracking if present
+  if (referrer) {
+    tracking.referrer = referrer;
+  }
 
   for (const [key, value] of Object.entries(rawData)) {
     const lowerKey = key.toLowerCase();
+
+    // Check if it's a tracking parameter
+    if (TRACKING_PARAMS.includes(lowerKey as typeof TRACKING_PARAMS[number])) {
+      const strValue = String(value).trim();
+      if (strValue) {
+        tracking[lowerKey as keyof TrackingParams] = strValue;
+      }
+      continue;
+    }
+
+    // Check for landing_page field
+    if (lowerKey === "landing_page" || lowerKey === "landingpage" || lowerKey === "_landing_page") {
+      const strValue = String(value).trim();
+      if (strValue) {
+        tracking.landing_page = strValue;
+      }
+      continue;
+    }
 
     // Check if it's a special field
     if (SPECIAL_FIELDS.includes(lowerKey) || key.startsWith("_")) {
@@ -163,7 +217,9 @@ function extractSpecialFields(
     }
   }
 
-  return { fields, specialFields };
+  // Only include tracking if there are any values
+  const hasTracking = Object.keys(tracking).length > 0;
+  return { fields, specialFields, tracking: hasTracking ? tracking : undefined };
 }
 
 /**
