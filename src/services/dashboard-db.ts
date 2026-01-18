@@ -66,25 +66,95 @@ export async function getFormById(
 }
 
 /**
- * Update form settings
+ * Create a new form
+ */
+export async function createForm(
+  db: D1Database,
+  data: { name: string; email: string }
+): Promise<Form> {
+  const id = crypto.randomUUID();
+  const emailHash = await hashEmail(data.email);
+  const now = new Date().toISOString();
+
+  await db
+    .prepare(
+      `INSERT INTO forms (id, name, email, email_hash, settings, created_at, updated_at)
+       VALUES (?, ?, ?, ?, '{}', ?, ?)`
+    )
+    .bind(id, data.name, data.email, emailHash, now, now)
+    .run();
+
+  return {
+    id,
+    name: data.name,
+    email: data.email,
+    email_hash: emailHash,
+    verified_at: null,
+    settings: {},
+    user_id: null,
+    created_at: now,
+    updated_at: now,
+  };
+}
+
+async function hashEmail(email: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(email.toLowerCase());
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 12);
+}
+
+/**
+ * Update form (name and/or settings)
+ */
+export async function updateForm(
+  db: D1Database,
+  formId: string,
+  updates: { name?: string; settings?: Partial<FormSettings> }
+): Promise<Form> {
+  const form = await getFormById(db, formId);
+  if (!form) throw new Error("Form not found");
+
+  const now = new Date().toISOString();
+  const fields: string[] = ["updated_at = ?"];
+  const values: (string | number)[] = [now];
+
+  if (updates.name !== undefined) {
+    fields.push("name = ?");
+    values.push(updates.name);
+  }
+
+  if (updates.settings) {
+    const newSettings = { ...form.settings, ...updates.settings };
+    fields.push("settings = ?");
+    values.push(JSON.stringify(newSettings));
+    form.settings = newSettings;
+  }
+
+  values.push(formId);
+
+  await db
+    .prepare(`UPDATE forms SET ${fields.join(", ")} WHERE id = ?`)
+    .bind(...values)
+    .run();
+
+  return {
+    ...form,
+    name: updates.name !== undefined ? updates.name : form.name,
+    updated_at: now,
+  };
+}
+
+/**
+ * Update form settings (legacy - use updateForm instead)
  */
 export async function updateFormSettings(
   db: D1Database,
   formId: string,
   updates: Partial<FormSettings>
 ): Promise<Form> {
-  const form = await getFormById(db, formId);
-  if (!form) throw new Error("Form not found");
-
-  const newSettings = { ...form.settings, ...updates };
-  const now = new Date().toISOString();
-
-  await db
-    .prepare("UPDATE forms SET settings = ?, updated_at = ? WHERE id = ?")
-    .bind(JSON.stringify(newSettings), now, formId)
-    .run();
-
-  return { ...form, settings: newSettings, updated_at: now };
+  return updateForm(db, formId, { settings: updates });
 }
 
 /**
@@ -270,6 +340,7 @@ export async function bulkDeleteSubmissions(
 function parseForm(row: Record<string, unknown>): Form {
   return {
     id: row.id as string,
+    name: row.name as string | null,
     email: row.email as string,
     email_hash: row.email_hash as string,
     verified_at: row.verified_at as string | null,

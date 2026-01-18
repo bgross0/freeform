@@ -74,10 +74,17 @@ class ApiClient {
     return this.request<{ data: Form }>(`/forms/${id}`);
   }
 
-  async updateForm(id: string, settings: Partial<FormSettings>) {
+  async createForm(data: { name: string; email: string }) {
+    return this.request<{ data: Form }>("/forms", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateForm(id: string, data: { name?: string; settings?: Partial<FormSettings> }) {
     return this.request<{ data: Form }>(`/forms/${id}`, {
       method: "PATCH",
-      body: JSON.stringify(settings),
+      body: JSON.stringify(data),
     });
   }
 
@@ -166,7 +173,8 @@ class ApiError extends Error {
 // Types
 export interface Form {
   id: string;
-  email: string;
+  name: string | null;
+  email: string; // Notification email
   email_hash: string;
   verified_at: string | null;
   settings: FormSettings;

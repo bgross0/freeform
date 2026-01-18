@@ -13,6 +13,7 @@ export function FormSettingsPage() {
   const { data: form, isLoading, error } = useForm(formId || "");
   const updateMutation = useUpdateForm(formId || "");
 
+  const [formName, setFormName] = useState("");
   const [settings, setSettings] = useState<Partial<FormSettings>>({
     default_subject: "",
     webhook_url: "",
@@ -20,7 +21,8 @@ export function FormSettingsPage() {
   });
 
   useEffect(() => {
-    if (form?.settings) {
+    if (form) {
+      setFormName(form.name || "");
       setSettings({
         default_subject: form.settings.default_subject || "",
         webhook_url: form.settings.webhook_url || "",
@@ -33,7 +35,10 @@ export function FormSettingsPage() {
     e.preventDefault();
 
     try {
-      await updateMutation.mutateAsync(settings);
+      await updateMutation.mutateAsync({
+        name: formName,
+        settings,
+      });
       toast.success("Settings saved");
     } catch {
       toast.error("Failed to save settings");
@@ -69,16 +74,50 @@ export function FormSettingsPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold">Form Settings</h1>
-          <p className="text-muted-foreground">{form.email}</p>
+          <p className="text-muted-foreground">{form.name || "Untitled Form"}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
         <Card>
           <CardHeader>
+            <CardTitle>General</CardTitle>
+            <CardDescription>
+              Basic form information
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Form Name</Label>
+              <Input
+                id="name"
+                placeholder="Contact Form"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Notification Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={form.email}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-sm text-muted-foreground">
+                Submissions are sent to this address. Contact support to change.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
             <CardTitle>Email Settings</CardTitle>
             <CardDescription>
-              Configure how email notifications are sent for this form
+              Configure how email notifications are sent
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

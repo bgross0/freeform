@@ -154,8 +154,10 @@ export function FormBuilderPage() {
   const handleSave = async () => {
     try {
       await updateMutation.mutateAsync({
-        ...form?.settings,
-        field_schema: fields,
+        settings: {
+          ...form?.settings,
+          field_schema: fields,
+        },
       });
       setIsDirty(false);
       toast.success("Form saved successfully");
@@ -222,8 +224,8 @@ export function FormBuilderPage() {
               </Button>
             </Link>
             <div>
-              <h1 className="text-lg font-semibold">Form Builder</h1>
-              <p className="text-sm text-muted-foreground">{form.email}</p>
+              <h1 className="text-lg font-semibold">{form.name || "Untitled Form"}</h1>
+              <p className="text-sm text-muted-foreground">Form Builder</p>
             </div>
           </div>
 

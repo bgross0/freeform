@@ -148,9 +148,9 @@ export function SubmissionsPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">{form?.email || "Submissions"}</h1>
+            <h1 className="text-2xl font-bold">{form?.name || "Untitled Form"}</h1>
             <p className="text-muted-foreground">
-              {pagination?.total || 0} submissions
+              {form?.email} · {pagination?.total || 0} submissions
             </p>
           </div>
         </div>

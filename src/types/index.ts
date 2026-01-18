@@ -1,7 +1,8 @@
 // Form entity
 export interface Form {
   id: string;
-  email: string;
+  name: string | null;
+  email: string; // Notification email
   email_hash: string;
   verified_at: string | null;
   settings: FormSettings;

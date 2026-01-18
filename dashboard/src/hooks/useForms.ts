@@ -22,12 +22,26 @@ export function useForm(formId: string) {
   });
 }
 
+export function useCreateForm() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { name: string; email: string }) => {
+      const response = await api.createForm(data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["forms"] });
+    },
+  });
+}
+
 export function useUpdateForm(formId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (settings: Partial<FormSettings>) => {
-      const response = await api.updateForm(formId, settings);
+    mutationFn: async (data: { name?: string; settings?: Partial<FormSettings> }) => {
+      const response = await api.updateForm(formId, data);
       return response.data;
     },
     onSuccess: () => {
